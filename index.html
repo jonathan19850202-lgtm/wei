@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>謝家偉 Jonathan Hsieh — 數位行銷與專案管理</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #f7f3ee;
+  --paper: #faf7f2;
+  --ink: #1a1714;
+  --ink-muted: #6b6560;
+  --ink-light: #9e9890;
+  --accent: #b5451b;
+  --accent-light: #e8c4b5;
+  --rule: #d9d2c8;
+  --gold: #c8963e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+/* Paper texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.6;
+}
+
+/* Typography */
+.serif { font-family: 'Playfair Display', serif; }
+.tc-serif { font-family: 'Noto Serif TC', serif; }
+
+/* Masthead */
+.masthead {
+  border-bottom: 3px double var(--rule);
+  background: var(--paper);
+}
+
+/* Nav */
+.nav-item {
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  transition: color 0.2s;
+  text-decoration: none;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.nav-item:hover { color: var(--accent); }
+
+/* Drop cap */
+.drop-cap::first-letter {
+  float: left;
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  line-height: 0.75;
+  margin: 0.1em 0.12em 0 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+/* Pull quote */
+.pull-quote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.5rem;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+/* Section rules */
+.section-rule {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;
+}
+.section-rule::before, .section-rule::after {
+  content: ''; flex: 1; height: 1px; background: var(--rule);
+}
+.section-rule-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  white-space: nowrap;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+/* Tag / pill */
+.tag {
+  display: inline-block;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid var(--rule);
+  color: var(--ink-muted);
+  font-family: 'Noto Sans TC', sans-serif;
+  transition: all 0.2s;
+}
+.tag:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Job card */
+.job-entry {
+  border-top: 1px solid var(--rule);
+  padding-top: 2rem; margin-top: 2rem;
+  transition: border-color 0.3s;
+}
+.job-entry:hover { border-top-color: var(--accent); }
+.job-entry:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+
+/* Skill dot */
+.skill-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-size: 0.8rem; color: var(--ink-muted);
+  padding: 0.4rem 0;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s;
+}
+.skill-item:hover { color: var(--ink); border-bottom-color: var(--rule); }
+.skill-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
+}
+
+/* Sidebar sticky */
+@media (min-width: 1024px) {
+  .sidebar-sticky { position: sticky; top: 5rem; }
+}
+
+/* Reveal animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* Ornament */
+.ornament { color: var(--accent); font-size: 1.2rem; line-height: 1; }
+
+/* Highlight number */
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* Timeline */
+.timeline { border-left: 1px solid var(--rule); padding-left: 1.5rem; }
+.timeline-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--accent);
+  position: absolute; left: -1.85rem; top: 0.35rem;
+}
+
+/* Read more link */
+.read-more {
+  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--accent-light);
+  padding-bottom: 1px; transition: border-color 0.2s;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.read-more:hover { border-color: var(--accent); }
+
+/* Print */
+@media print {
+  body::before { display: none; }
+  nav, .no-print { display: none; }
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--rule); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-light); }
+</style>
+</head>
+<body class="relative z-0">
+
+<!-- ═══ MASTHEAD ═══ -->
+<header class="masthead relative z-10">
+  <div class="max-w-5xl mx-auto px-6">
+
+    <!-- Top bar -->
+    <div class="flex justify-between items-center py-3 border-b border-[var(--rule)] text-[0.62rem] text-[var(--ink-light)] tracking-widest uppercase" style="font-family:'Noto Sans TC',sans-serif">
+      <span>數位行銷 · 專案管理 · 網站規劃</span>
+      <span>Vol. 2025</span>
+    </div>
+
+    <!-- Logo / Name -->
+    <div class="text-center py-8">
+      <p class="text-[0.65rem] tracking-[0.4em] uppercase text-[var(--ink-light)] mb-3" style="font-family:'Noto Sans TC',sans-serif">Personal Portfolio &amp; Resume</p>
+      <h1 class="serif text-6xl md:text-8xl font-black leading-none text-[var(--ink)] tracking-tight">
+        謝家偉
+      </h1>
+      <p class="serif italic text-2xl md:text-3xl text-[var(--ink-muted)] mt-2 font-normal">Jonathan Hsieh</p>
+      <div class="flex items-center justify-center gap-4 mt-4">
+        <div class="h-px flex-1 max-w-16 bg-[var(--rule)]"></div>
+        <span class="ornament">✦</span>
+        <div class="h-px flex-1 max-w-16 bg-[var(--rule)]"></div>
+      </div>
+      <p class="text-[0.72rem] tracking-[0.22em] uppercase text-[var(--accent)] mt-4" style="font-family:'Noto Sans TC',sans-serif">
+        網站規劃管理師 · 數位行銷策略 · 專案管理
+      </p>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex justify-center gap-8 py-3 border-t border-[var(--rule)]">
+      <a href="#about"   class="nav-item">關於</a>
+      <a href="#skills"  class="nav-item">專長</a>
+      <a href="#career"  class="nav-item">經歷</a>
+      <a href="#numbers" class="nav-item">成就</a>
+      <a href="#contact" class="nav-item">聯繫</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="max-w-5xl mx-auto px-6 py-12 relative z-10">
+  <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-16">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div>
+
+      <!-- ABOUT -->
+      <section id="about" class="mb-16 reveal">
+        <div class="section-rule"><span class="section-rule-label">✦ &nbsp;關於我</span></div>
+
+        <p class="tc-serif text-[0.78rem] text-[var(--ink-light)] tracking-widest uppercase mb-4">Profile</p>
+        <h2 class="serif text-3xl md:text-4xl font-black leading-tight mb-6 text-[var(--ink)]">
+          十五年的數位浪潮，<br>
+          <span class="italic font-normal text-[var(--accent)]">從品牌到政府，用策略說話。</span>
+        </h2>
+
+        <p class="drop-cap tc-serif text-[0.95rem] leading-8 text-[var(--ink)] mb-5">
+          擁有 15 年以上數位行銷、網站規劃與專案管理經驗，熟悉品牌行銷策略、網站與系統規劃、跨部門協作及團隊管理。歷任業務主管、專案經理與網站規劃管理職務，具備從前期需求分析、提案簡報、專案執行到驗收管理的完整實務經驗。
+        </p>
+
+        <div class="pull-quote my-8 reveal">
+          現任國家電影及視聽文化中心網站規劃管理師，負責資訊系統採購、政府補助計畫執行及資安管理，熟悉政府機關與行政法人專案流程。
+        </div>
+
+        <p class="tc-serif text-[0.95rem] leading-8 text-[var(--ink-muted)]">
+          過去亦曾服務於數位設計與整合行銷產業，累積品牌推廣、客戶開發與大型專案統籌能力。相信好的專案管理，是在對的時間做對的事——而溝通與信任，是一切的基礎。
+        </p>
+      </section>
+
+      <!-- CAREER -->
+      <section id="career" class="mb-16">
+        <div class="section-rule reveal"><span class="section-rule-label">✦ &nbsp;工作經歷</span></div>
+
+        <!-- Job 1 -->
+        <article class="job-entry reveal">
+          <div class="flex flex-wrap justify-between items-start gap-2 mb-4">
+            <div>
+              <h3 class="serif text-xl font-bold text-[var(--ink)]">網站規劃管理師</h3>
+              <p class="text-[var(--accent)] text-sm mt-0.5 tc-serif">國家電影及視聽文化中心</p>
+            </div>
+            <span class="tag">2025.10 — 至今</span>
+          </div>
+
+          <p class="tc-serif text-[0.88rem] text-[var(--ink-muted)] leading-7 mb-5">
+            負責中心核心資訊系統專案管理與採購作業，包含官網、ERP 及雲端服務等系統，橫跨技術採購與行政法人治理兩大核心職能。
+          </p>
+
+          <div class="timeline mt-4 space-y-4">
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">規劃與執行中心核心資訊系統軟硬體採購專案，撰寫需求分析與招標文件，進行廠商評選與履約管理</p>
+            </div>
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">協助跨部門資訊系統資安規範制定與審查，落實政府資安合規要求</p>
+            </div>
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">執行文化部補助計畫，負責計畫書撰寫、成果報告與經費核銷全流程管理</p>
+            </div>
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">管理專案進度、預算與驗收流程，確保各項資訊系統依時交付</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 mt-5">
+            <span class="tag">政府採購</span>
+            <span class="tag">資訊系統管理</span>
+            <span class="tag">資安規範</span>
+            <span class="tag">履約管理</span>
+            <span class="tag">預算控管</span>
+          </div>
+        </article>
+
+        <!-- Job 2 -->
+        <article class="job-entry reveal">
+          <div class="flex flex-wrap justify-between items-start gap-2 mb-4">
+            <div>
+              <h3 class="serif text-xl font-bold text-[var(--ink)]">業務部經理</h3>
+              <p class="text-[var(--accent)] text-sm mt-0.5 tc-serif">山川久也設計有限公司</p>
+            </div>
+            <span class="tag">2017.06 — 2025.09</span>
+          </div>
+
+          <p class="tc-serif text-[0.88rem] text-[var(--ink-muted)] leading-7 mb-5">
+            帶領業務與專案團隊，負責網站、APP 與系統專案規劃及客戶經營。從獨立接案到團隊管理，歷經公司快速成長的完整歷程。
+          </p>
+
+          <!-- Highlight quote -->
+          <div class="bg-[var(--paper)] border border-[var(--rule)] rounded p-5 mb-5">
+            <p class="serif text-[var(--accent)] text-lg italic font-bold mb-1">" 帶領公司營收由 800 萬躍升至 3,000 萬 "</p>
+            <p class="text-[0.72rem] text-[var(--ink-light)] tc-serif">客戶涵蓋文化、金融及政府單位，深耕多元產業</p>
+          </div>
+
+          <div class="timeline mt-4 space-y-4">
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">擬定業績目標並帶領團隊達成績效，年度業績成長率連續多年達雙位數</p>
+            </div>
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">與客戶進行需求訪談與專案規劃，統籌網站與系統功能規劃及預算評估</p>
+            </div>
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">製作提案簡報並主導專案報告，協調執行問題與驗收流程</p>
+            </div>
+            <div class="relative">
+              <div class="timeline-dot"></div>
+              <p class="tc-serif text-[0.85rem] text-[var(--ink)] leading-7">客戶涵蓋文化機構、金融機構及政府單位，擅長跨產業解決方案整合</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 mt-5">
+            <span class="tag">業務開發</span>
+            <span class="tag">團隊管理</span>
+            <span class="tag">網站規劃</span>
+            <span class="tag">APP 專案</span>
+            <span class="tag">提案簡報</span>
+            <span class="tag">客戶關係</span>
+          </div>
+        </article>
+      </section>
+
+      <!-- NUMBERS -->
+      <section id="numbers" class="mb-16 reveal">
+        <div class="section-rule"><span class="section-rule-label">✦ &nbsp;關鍵成就</span></div>
+
+        <div class="grid grid-cols-3 gap-6 text-center">
+          <div class="border border-[var(--rule)] p-6 bg-[var(--paper)]">
+            <p class="stat-num">15+</p>
+            <p class="text-[0.7rem] text-[var(--ink-light)] tracking-widest mt-2 tc-serif">年數位產業<br>實戰經驗</p>
+          </div>
+          <div class="border border-[var(--rule)] p-6 bg-[var(--paper)]">
+            <p class="stat-num serif" style="color:var(--gold)">3.75×</p>
+            <p class="text-[0.7rem] text-[var(--ink-light)] tracking-widest mt-2 tc-serif">帶領公司<br>營收成長</p>
+          </div>
+          <div class="border border-[var(--rule)] p-6 bg-[var(--paper)]">
+            <p class="stat-num">8</p>
+            <p class="text-[0.7rem] text-[var(--ink-light)] tracking-widest mt-2 tc-serif">核心<br>專業領域</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="mt-16 lg:mt-0">
+      <div class="sidebar-sticky space-y-10">
+
+        <!-- Contact card -->
+        <!-- Photo -->
+        <div class="reveal text-center">
+          <div style="width:160px;height:160px;border-radius:50%;overflow:hidden;border:3px solid var(--rule);margin:0 auto 0.75rem;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+            <img src="images/avatar.png" alt="謝家偉 Jonathan Hsieh" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
+          </div>
+          <p class="serif font-black text-[var(--ink)] text-lg">謝家偉</p>
+          <p class="text-[0.7rem] text-[var(--ink-light)] tracking-widest" style="font-family:'Noto Sans TC',sans-serif">Jonathan Hsieh</p>
+        </div>
+
+        <div id="contact" class="border border-[var(--rule)] bg-[var(--paper)] p-6 reveal">
+          <p class="text-[0.62rem] tracking-[0.25em] uppercase text-[var(--ink-light)] mb-4" style="font-family:'Noto Sans TC',sans-serif">聯繫方式</p>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <span class="text-[var(--accent)] text-sm mt-0.5">✉</span>
+              <div>
+                <p class="text-[0.7rem] text-[var(--ink-light)] tc-serif">電子郵件</p>
+                <p class="text-[0.85rem] text-[var(--ink)] tc-serif">jonathan@example.com</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-[var(--accent)] text-sm mt-0.5">☎</span>
+              <div>
+                <p class="text-[0.7rem] text-[var(--ink-light)] tc-serif">電話</p>
+                <p class="text-[0.85rem] text-[var(--ink)] tc-serif">0912-345-678</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-[var(--accent)] text-sm mt-0.5">◎</span>
+              <div>
+                <p class="text-[0.7rem] text-[var(--ink-light)] tc-serif">所在地</p>
+                <p class="text-[0.85rem] text-[var(--ink)] tc-serif">台北市，台灣</p>
+              </div>
+            </div>
+          </div>
+          <div class="border-t border-[var(--rule)] mt-5 pt-5">
+            <a href="mailto:jonathan@example.com"
+               class="block text-center text-[0.7rem] tracking-widest uppercase bg-[var(--accent)] text-white py-3 transition-opacity hover:opacity-80 tc-serif">
+              寄信聯繫
+            </a>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div id="skills" class="reveal">
+          <p class="text-[0.62rem] tracking-[0.25em] uppercase text-[var(--ink-light)] mb-4" style="font-family:'Noto Sans TC',sans-serif">核心專長</p>
+
+          <div class="space-y-1">
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">網站／APP／系統規劃</span></div>
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">專案管理與時程控管</span></div>
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">數位行銷與品牌策略</span></div>
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">政府採購與履約管理</span></div>
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">跨部門溝通整合</span></div>
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">提案簡報與客戶溝通</span></div>
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">團隊管理與教育訓練</span></div>
+            <div class="skill-item"><div class="skill-dot"></div><span class="tc-serif">預算控管與驗收作業</span></div>
+          </div>
+        </div>
+
+        <!-- Industry tags -->
+        <div class="reveal">
+          <p class="text-[0.62rem] tracking-[0.25em] uppercase text-[var(--ink-light)] mb-4" style="font-family:'Noto Sans TC',sans-serif">服務產業</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="tag">政府機關</span>
+            <span class="tag">文化產業</span>
+            <span class="tag">金融業</span>
+            <span class="tag">行政法人</span>
+            <span class="tag">數位設計</span>
+            <span class="tag">整合行銷</span>
+          </div>
+        </div>
+
+        <!-- Ornamental divider -->
+        <div class="text-center text-[var(--rule)] text-xl tracking-widest select-none">
+          · · ·
+        </div>
+
+        <!-- Profile note -->
+        <div class="border-l-2 border-[var(--accent-light)] pl-4 reveal">
+          <p class="serif italic text-[var(--ink-muted)] text-sm leading-6">
+            「最好的專案，<br>
+            是客戶忘記有專案<br>
+            在進行的那種。」
+          </p>
+          <p class="text-[0.65rem] text-[var(--ink-light)] mt-2 tracking-widest" style="font-family:'Noto Sans TC',sans-serif">— Jonathan Hsieh</p>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="border-t-2 border-double border-[var(--rule)] bg-[var(--paper)] py-10 px-6 text-center relative z-10">
+  <span class="ornament block mb-3">✦</span>
+  <p class="serif text-2xl font-black text-[var(--ink)]">謝家偉 · Jonathan Hsieh</p>
+  <p class="text-[0.65rem] tracking-[0.3em] uppercase text-[var(--ink-light)] mt-2" style="font-family:'Noto Sans TC',sans-serif">
+    網站規劃管理師 · 數位行銷策略 · 專案管理
+  </p>
+  <div class="flex items-center justify-center gap-4 mt-4">
+    <div class="h-px w-12 bg-[var(--rule)]"></div>
+    <p class="text-[0.62rem] text-[var(--ink-light)]" style="font-family:'Noto Sans TC',sans-serif">© 2025 版權所有</p>
+    <div class="h-px w-12 bg-[var(--rule)]"></div>
+  </div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
