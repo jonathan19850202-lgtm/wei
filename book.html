@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>借閱 / 歸還時間記錄</title>
+<style>
+  :root{
+    --paper: #F3EFE6;
+    --ink: #2B2620;
+    --ink-soft: #6B6354;
+    --stamp-red: #A23B2E;
+    --stamp-green: #2F5D4F;
+    --line: #C9BFA8;
+    --card: #FBF8F1;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(0,0,0,0.03) 0, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(0,0,0,0.03) 0, transparent 40%);
+    font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+    color: var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+
+  .ledger{
+    width:100%;
+    max-width: 760px;
+  }
+
+  .ledger-head{
+    text-align:center;
+    margin-bottom: 28px;
+  }
+
+  .ledger-head .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    color: var(--ink-soft);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    text-transform: uppercase;
+  }
+
+  .ledger-head h1{
+    font-size: 30px;
+    margin: 6px 0 0;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .ledger-head .rule{
+    width: 60px;
+    height: 2px;
+    background: var(--stamp-red);
+    margin: 14px auto 0;
+  }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(0,0,0,0.35);
+    padding: 32px 28px;
+  }
+
+  .actions{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  @media (max-width: 540px){
+    .actions{ grid-template-columns: 1fr; }
+  }
+
+  .btn{
+    position: relative;
+    border: 1.5px solid currentColor;
+    background: transparent;
+    border-radius: 3px;
+    padding: 18px 14px;
+    font-family: inherit;
+    font-size: 17px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+  }
+
+  .btn:active{
+    transform: translateY(1px) scale(0.99);
+  }
+
+  .btn-borrow{
+    color: var(--stamp-red);
+  }
+  .btn-borrow:hover{
+    background: rgba(162,59,46,0.06);
+  }
+
+  .btn-return{
+    color: var(--stamp-green);
+  }
+  .btn-return:hover{
+    background: rgba(47,93,79,0.06);
+  }
+
+  .btn .label-cn{
+    display:block;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .btn .label-en{
+    display:block;
+    margin-top: 4px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+
+  .stamp-row{
+    margin-top: 22px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 540px){
+    .stamp-row{ grid-template-columns: 1fr; }
+  }
+
+  .stamp{
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    padding: 14px 16px;
+    min-height: 88px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .stamp .stamp-label{
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .stamp .stamp-time{
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stamp .stamp-meta{
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  .stamp.empty .stamp-time{
+    color: var(--ink-soft);
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .stamp.borrow .stamp-time{ color: var(--stamp-red); }
+  .stamp.return .stamp-time{ color: var(--stamp-green); }
+
+  .divider{
+    border-top: 1px solid var(--line);
+    margin: 24px 0;
+  }
+
+  .history-head{
+    display:flex;
+    align-items:baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .history-head h2{
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    margin:0;
+    font-weight: 600;
+  }
+
+  .clear-btn{
+    border:none;
+    background:none;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor:pointer;
+    padding: 0;
+  }
+  .clear-btn:hover{ color: var(--ink); }
+
+  .table-wrap{
+    overflow-x: auto;
+  }
+
+  table{
+    width:100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 480px;
+  }
+
+  thead th{
+    text-align:left;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+    padding: 6px 8px 6px 4px;
+    white-space: nowrap;
+  }
+
+  tbody td{
+    padding: 9px 8px 9px 4px;
+    border-bottom: 1px solid rgba(201,191,168,0.5);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child td{ border-bottom:none; }
+
+  .tag{
+    display:inline-block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+  }
+  .tag.borrow{ color: var(--stamp-red); }
+  .tag.return{ color: var(--stamp-green); }
+
+  .empty-history{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 18px 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .footnote{
+    text-align:center;
+    margin-top: 18px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.04em;
+  }
+
+  /* ---- Book list card ---- */
+  .books-card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(0,0,0,0.35);
+    padding: 28px 28px 24px;
+    margin-top: 24px;
+  }
+
+  .books-head{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .books-head h2{
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .books-summary{
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  .books-summary .num-out{ color: var(--stamp-red); font-weight: 700; }
+  .books-summary .num-in{ color: var(--stamp-green); font-weight: 700; }
+
+  .books-toolbar{
+    display:flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .books-toolbar input[type="text"]{
+    flex: 1;
+    min-width: 140px;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+  }
+  .books-toolbar input[type="text"]:focus{
+    outline:none;
+    border-color: var(--ink-soft);
+  }
+
+  .filter-chip{
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .filter-chip.active{
+    border-color: var(--ink);
+    color: var(--ink);
+    background: rgba(43,38,32,0.05);
+    font-weight: 600;
+  }
+
+  .books-list-wrap{
+    max-height: 420px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+  }
+
+  .books-table{
+    width:100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  .books-table thead th{
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    text-align:left;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 10px;
+    z-index: 1;
+  }
+
+  .books-table tbody td{
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(201,191,168,0.4);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .books-table tbody tr:last-child td{ border-bottom:none; }
+
+  .books-table tbody tr:hover{
+    background: rgba(43,38,32,0.03);
+  }
+
+  .book-code-cell{
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap: 5px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .status-pill::before{
+    content:"";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    display:inline-block;
+  }
+  .status-pill.out{ color: var(--stamp-red); }
+  .status-pill.available{ color: var(--stamp-green); }
+
+  .no-match{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 24px 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* ---- Modal ---- */
+  .modal-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(43,38,32,0.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding: 16px;
+    z-index: 50;
+  }
+  .modal-overlay.open{ display:flex; }
+
+  .modal-box{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 380px;
+    padding: 26px 24px 22px;
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,0.5);
+  }
+
+  .modal-box h3{
+    margin: 0 0 4px;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+  }
+
+  .modal-box .modal-sub{
+    margin: 0 0 18px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.03em;
+  }
+
+  .field{
+    margin-bottom: 14px;
+  }
+
+  .field label{
+    display:block;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .field input,
+  .field select{
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--ink);
+  }
+
+  .field input:focus,
+  .field select:focus{
+    outline: none;
+    border-color: var(--ink-soft);
+  }
+
+  .field .field-error{
+    display:none;
+    font-size: 11px;
+    color: var(--stamp-red);
+    margin-top: 5px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .field.has-error input,
+  .field.has-error select{ border-color: var(--stamp-red); }
+  .field.has-error .field-error{ display:block; }
+
+  .modal-actions{
+    display:flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .modal-actions button{
+    flex:1;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    padding: 10px 0;
+    border-radius: 3px;
+    cursor:pointer;
+  }
+
+  .modal-cancel{
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+  }
+  .modal-cancel:hover{ background: rgba(0,0,0,0.03); }
+
+  .modal-confirm{
+    border: 1px solid currentColor;
+    background: transparent;
+    font-weight: 600;
+  }
+  .modal-confirm.borrow{ color: var(--stamp-red); }
+  .modal-confirm.borrow:hover{ background: rgba(162,59,46,0.07); }
+  .modal-confirm.return{ color: var(--stamp-green); }
+  .modal-confirm.return:hover{ background: rgba(47,93,79,0.07); }
+</style>
+</head>
+<body>
+
+<div class="ledger">
+  <div class="ledger-head">
+    <div class="eyebrow">Borrow &amp; Return Log</div>
+    <h1>借閱歸還登記</h1>
+    <div class="rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="actions">
+      <button class="btn btn-borrow" id="borrowBtn">
+        <span class="label-cn">借閱時間</span>
+        <span class="label-en">Borrow</span>
+      </button>
+      <button class="btn btn-return" id="returnBtn">
+        <span class="label-cn">歸還時間</span>
+        <span class="label-en">Return</span>
+      </button>
+    </div>
+
+    <div class="stamp-row">
+      <div class="stamp empty borrow" id="borrowStamp">
+        <div class="stamp-label">最近借閱</div>
+        <div class="stamp-time">尚未記錄</div>
+        <div class="stamp-meta"></div>
+      </div>
+      <div class="stamp empty return" id="returnStamp">
+        <div class="stamp-label">最近歸還</div>
+        <div class="stamp-time">尚未記錄</div>
+        <div class="stamp-meta"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="history-head">
+      <h2>歷史記錄</h2>
+      <button class="clear-btn" id="clearBtn">清除全部</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:64px;">類型</th>
+            <th>書籍代碼</th>
+            <th>學號</th>
+            <th>時間</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+        </tbody>
+      </table>
+    </div>
+    <div class="empty-history" id="emptyHistory">尚無任何記錄，請點擊上方按鈕開始。</div>
+  </div>
+
+  <div class="books-card">
+    <div class="books-head">
+      <h2>書籍清單（001-100）</h2>
+      <div class="books-summary" id="booksSummary"></div>
+    </div>
+
+    <div class="books-toolbar">
+      <input type="text" id="bookSearch" placeholder="搜尋書籍代碼或學號...">
+      <button class="filter-chip active" data-filter="all">全部</button>
+      <button class="filter-chip" data-filter="out">已借出</button>
+      <button class="filter-chip" data-filter="available">可借閱</button>
+    </div>
+
+    <div class="books-list-wrap">
+      <table class="books-table">
+        <thead>
+          <tr>
+            <th style="width:90px;">代碼</th>
+            <th style="width:110px;">狀態</th>
+            <th>借用人學號</th>
+            <th>最後更新時間</th>
+          </tr>
+        </thead>
+        <tbody id="booksBody"></tbody>
+      </table>
+      <div class="no-match" id="noMatch" style="display:none;">沒有符合條件的書籍。</div>
+    </div>
+  </div>
+
+  <div class="footnote">資料僅儲存在本機瀏覽器，重新整理頁面後仍會保留，清除瀏覽器資料則會消失。</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3 id="modalTitle">借閱登記</h3>
+    <p class="modal-sub" id="modalSub">請輸入書籍代碼與學號後確認</p>
+
+    <div class="field" id="bookField">
+      <label for="bookInput">書籍代碼</label>
+      <select id="bookInput"></select>
+      <div class="field-error">請選擇書籍代碼</div>
+    </div>
+
+    <div class="field" id="studentField">
+      <label for="studentInput">學號</label>
+      <input type="text" id="studentInput" placeholder="例如：S1234567" autocomplete="off">
+      <div class="field-error">請輸入學號</div>
+    </div>
+
+    <div id="bookStatusHint" style="display:none; font-size:12px; font-family:'Helvetica Neue',Arial,sans-serif; color:var(--stamp-red); margin-top:-4px; margin-bottom:14px;"></div>
+
+    <div class="modal-actions">
+      <button class="modal-cancel" id="modalCancel">取消</button>
+      <button class="modal-confirm" id="modalConfirm">確認</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = "borrowReturnHistory";
+  const TOTAL_BOOKS = 100;
+  const BOOK_CODES = Array.from({ length: TOTAL_BOOKS }, (_, i) => String(i + 1).padStart(3, "0"));
+  let pendingType = null; // "borrow" or "return"
+  let currentFilter = "all";
+
+  function pad(n){ return String(n).padStart(2, "0"); }
+
+  function formatNow(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mm = pad(d.getMinutes());
+    return `${y}-${m}${day}-${hh}:${mm}`;
+  }
+
+  function loadHistory(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function saveHistory(history){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }
+
+  // 取得每本書目前狀態：依該書代碼最新一筆記錄判斷
+  // 回傳 { status: "available" | "out", studentId: string|null, time: string|null }
+  function getBookStatus(history, bookCode){
+    const record = history.find(item => item.bookCode === bookCode);
+    if(!record){
+      return { status: "available", studentId: null, time: null };
+    }
+    return {
+      status: record.type === "borrow" ? "out" : "available",
+      studentId: record.studentId,
+      time: record.time
+    };
+  }
+
+  function getAllBookStatuses(history){
+    return BOOK_CODES.map(code => ({
+      code,
+      ...getBookStatus(history, code)
+    }));
+  }
+
+  function renderStamps(history){
+    const lastBorrow = history.find(item => item.type === "borrow");
+    const lastReturn = history.find(item => item.type === "return");
+
+    const borrowStamp = document.getElementById("borrowStamp");
+    const returnStamp = document.getElementById("returnStamp");
+
+    if(lastBorrow){
+      borrowStamp.classList.remove("empty");
+      borrowStamp.querySelector(".stamp-time").textContent = lastBorrow.time;
+      borrowStamp.querySelector(".stamp-meta").textContent =
+        `書籍代碼 ${lastBorrow.bookCode} ・ 學號 ${lastBorrow.studentId}`;
+    } else {
+      borrowStamp.classList.add("empty");
+      borrowStamp.querySelector(".stamp-time").textContent = "尚未記錄";
+      borrowStamp.querySelector(".stamp-meta").textContent = "";
+    }
+
+    if(lastReturn){
+      returnStamp.classList.remove("empty");
+      returnStamp.querySelector(".stamp-time").textContent = lastReturn.time;
+      returnStamp.querySelector(".stamp-meta").textContent =
+        `書籍代碼 ${lastReturn.bookCode} ・ 學號 ${lastReturn.studentId}`;
+    } else {
+      returnStamp.classList.add("empty");
+      returnStamp.querySelector(".stamp-time").textContent = "尚未記錄";
+      returnStamp.querySelector(".stamp-meta").textContent = "";
+    }
+  }
+
+  function renderHistory(history){
+    const body = document.getElementById("historyBody");
+    const emptyHistory = document.getElementById("emptyHistory");
+    body.innerHTML = "";
+
+    if(history.length === 0){
+      emptyHistory.style.display = "block";
+      return;
+    }
+    emptyHistory.style.display = "none";
+
+    history.forEach(item => {
+      const tr = document.createElement("tr");
+
+      const tdType = document.createElement("td");
+      const tag = document.createElement("span");
+      tag.className = "tag " + item.type;
+      tag.textContent = item.type === "borrow" ? "借閱" : "歸還";
+      tdType.appendChild(tag);
+
+      const tdBook = document.createElement("td");
+      tdBook.textContent = item.bookCode;
+
+      const tdStudent = document.createElement("td");
+      tdStudent.textContent = item.studentId;
+
+      const tdTime = document.createElement("td");
+      tdTime.textContent = item.time;
+
+      tr.appendChild(tdType);
+      tr.appendChild(tdBook);
+      tr.appendChild(tdStudent);
+      tr.appendChild(tdTime);
+      body.appendChild(tr);
+    });
+  }
+
+  function renderBooksList(history){
+    const statuses = getAllBookStatuses(history);
+    const outCount = statuses.filter(s => s.status === "out").length;
+    const availableCount = TOTAL_BOOKS - outCount;
+
+    document.getElementById("booksSummary").innerHTML =
+      `共 ${TOTAL_BOOKS} 本 ・ <span class="num-out">已借出 ${outCount}</span> ・ <span class="num-in">可借閱 ${availableCount}</span>`;
+
+    const searchTerm = document.getElementById("bookSearch").value.trim().toLowerCase();
+
+    const filtered = statuses.filter(s => {
+      if(currentFilter !== "all" && s.status !== currentFilter) return false;
+      if(searchTerm){
+        const inCode = s.code.toLowerCase().includes(searchTerm);
+        const inStudent = (s.studentId || "").toLowerCase().includes(searchTerm);
+        if(!inCode && !inStudent) return false;
+      }
+      return true;
+    });
+
+    const body = document.getElementById("booksBody");
+    const noMatch = document.getElementById("noMatch");
+    body.innerHTML = "";
+
+    if(filtered.length === 0){
+      noMatch.style.display = "block";
+      return;
+    }
+    noMatch.style.display = "none";
+
+    filtered.forEach(s => {
+      const tr = document.createElement("tr");
+
+      const tdCode = document.createElement("td");
+      tdCode.className = "book-code-cell";
+      tdCode.textContent = s.code;
+
+      const tdStatus = document.createElement("td");
+      const pill = document.createElement("span");
+      pill.className = "status-pill " + s.status;
+      pill.textContent = s.status === "out" ? "已借出" : "可借閱";
+      tdStatus.appendChild(pill);
+
+      const tdStudent = document.createElement("td");
+      tdStudent.textContent = s.status === "out" ? (s.studentId || "—") : "—";
+
+      const tdTime = document.createElement("td");
+      tdTime.textContent = s.time || "—";
+
+      tr.appendChild(tdCode);
+      tr.appendChild(tdStatus);
+      tr.appendChild(tdStudent);
+      tr.appendChild(tdTime);
+      body.appendChild(tr);
+    });
+  }
+
+  document.getElementById("bookSearch").addEventListener("input", () => {
+    renderBooksList(loadHistory());
+  });
+
+  document.querySelectorAll(".filter-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentFilter = chip.dataset.filter;
+      renderBooksList(loadHistory());
+    });
+  });
+
+  function addRecord(type, bookCode, studentId){
+    const history = loadHistory();
+    const time = formatNow();
+    history.unshift({ type, bookCode, studentId, time });
+    saveHistory(history);
+    refresh();
+  }
+
+  function refresh(){
+    const history = loadHistory();
+    renderStamps(history);
+    renderHistory(history);
+    renderBooksList(history);
+  }
+
+  // ---- Modal control ----
+  const modalOverlay = document.getElementById("modalOverlay");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalSub = document.getElementById("modalSub");
+  const modalConfirm = document.getElementById("modalConfirm");
+  const bookInput = document.getElementById("bookInput");
+  const studentInput = document.getElementById("studentInput");
+  const bookField = document.getElementById("bookField");
+  const studentField = document.getElementById("studentField");
+
+  function populateBookSelect(){
+    const history = loadHistory();
+    bookInput.innerHTML = "";
+    BOOK_CODES.forEach(code => {
+      const status = getBookStatus(history, code);
+      const opt = document.createElement("option");
+      opt.value = code;
+      opt.textContent = `${code}（${status.status === "out" ? "已借出" : "可借閱"}）`;
+      bookInput.appendChild(opt);
+    });
+  }
+
+  function updateBookStatusHint(){
+    const history = loadHistory();
+    const code = bookInput.value;
+    const status = getBookStatus(history, code);
+    const hint = document.getElementById("bookStatusHint");
+
+    if(pendingType === "borrow" && status.status === "out"){
+      hint.textContent = `此書目前已被學號 ${status.studentId} 借出，無法再次借閱。`;
+      hint.style.display = "block";
+    } else if(pendingType === "return" && status.status === "available"){
+      hint.textContent = `此書目前為可借閱狀態，不需要歸還。`;
+      hint.style.display = "block";
+    } else {
+      hint.style.display = "none";
+    }
+  }
+
+  function openModal(type){
+    pendingType = type;
+    populateBookSelect();
+    studentInput.value = "";
+    bookField.classList.remove("has-error");
+    studentField.classList.remove("has-error");
+
+    if(type === "borrow"){
+      modalTitle.textContent = "借閱登記";
+      modalSub.textContent = "請選擇書籍代碼並輸入學號後確認借閱時間";
+      modalConfirm.textContent = "確認借閱";
+      modalConfirm.className = "modal-confirm borrow";
+    } else {
+      modalTitle.textContent = "歸還登記";
+      modalSub.textContent = "請選擇書籍代碼並輸入學號後確認歸還時間";
+      modalConfirm.textContent = "確認歸還";
+      modalConfirm.className = "modal-confirm return";
+    }
+
+    updateBookStatusHint();
+    modalOverlay.classList.add("open");
+    setTimeout(() => studentInput.focus(), 50);
+  }
+
+  function closeModal(){
+    modalOverlay.classList.remove("open");
+    pendingType = null;
+  }
+
+  document.getElementById("borrowBtn").addEventListener("click", () => openModal("borrow"));
+  document.getElementById("returnBtn").addEventListener("click", () => openModal("return"));
+  document.getElementById("modalCancel").addEventListener("click", closeModal);
+
+  modalOverlay.addEventListener("click", (e) => {
+    if(e.target === modalOverlay) closeModal();
+  });
+
+  bookInput.addEventListener("change", updateBookStatusHint);
+
+  modalConfirm.addEventListener("click", () => {
+    const bookCode = bookInput.value;
+    const studentId = studentInput.value.trim();
+
+    let valid = true;
+    if(!bookCode){
+      bookField.classList.add("has-error");
+      valid = false;
+    } else {
+      bookField.classList.remove("has-error");
+    }
+    if(!studentId){
+      studentField.classList.add("has-error");
+      valid = false;
+    } else {
+      studentField.classList.remove("has-error");
+    }
+    if(!valid) return;
+
+    const history = loadHistory();
+    const status = getBookStatus(history, bookCode);
+
+    if(pendingType === "borrow" && status.status === "out"){
+      alert(`此書（${bookCode}）目前已被學號 ${status.studentId} 借出，無法再次借閱。`);
+      return;
+    }
+    if(pendingType === "return" && status.status === "available"){
+      alert(`此書（${bookCode}）目前為可借閱狀態，不需要歸還。`);
+      return;
+    }
+
+    addRecord(pendingType, bookCode, studentId);
+    closeModal();
+  });
+
+  // Allow Enter key to submit from either field
+  [bookInput, studentInput].forEach(input => {
+    input.addEventListener("keydown", (e) => {
+      if(e.key === "Enter"){
+        e.preventDefault();
+        modalConfirm.click();
+      }
+    });
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if(confirm("確定要清除所有借閱／歸還記錄嗎？此動作無法復原。")){
+      saveHistory([]);
+      refresh();
+    }
+  });
+
+  refresh();
+</script>
+
+</body>
+</html>
